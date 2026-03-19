@@ -1,88 +1,295 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" href="./static/css/styles.css" />
-        <meta
-            http-equiv="Content-Security-Policy"
-            content="default-src * 'unsafe-inline' 'unsafe-eval'"
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Tauri App</title>
-        <script src="./static/js/main.js"></script>
-    </head>
-    <body>
-        <main class="container">
-            <h1>Welcome to TauriMan</h1>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>自动实时记账</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+}
+body {
+  background: #f7f8fa;
+  padding: 20px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+.card-top {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.card-top .title {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.card-top .label {
+  font-size: 14px;
+  color: #666;
+}
+.card-top .balance {
+  font-size: 32px;
+  font-weight: 600;
+  color: #007AFF;
+  margin: 6px 0;
+}
+.card-top .auto-status {
+  font-size: 13px;
+  color: #34C759;
+}
+.card-input {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card-input input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+.btn-group {
+  display: flex;
+  gap: 10px;
+}
+.btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+}
+.btn-income {
+  background: #007AFF;
+}
+.btn-expense {
+  background: #FF3B30;
+}
+.list {
+  margin-top: 20px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+}
+.swipe-item {
+  position: relative;
+  overflow: hidden;
+}
+.swipe-content {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s;
+}
+.swipe-delete {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  background: #ff3b30;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+.tag {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #fff;
+  margin-left: 4px;
+}
+.tag-manual { background: #007AFF; }
+.tag-notice { background: #FF3B30; }
+.tag-clip { background: #FF9500; }
+.tag-wx { background: #07C160; }
+.tag-ali { background: #1677FF; }
+</style>
+</head>
 
-            <div class="row">
-                <a
-                    href="https://tauri.app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <img
-                        src="./assets/tauri.svg"
-                        class="logo tauri"
-                        alt="Tauri logo"
-                    />
-                </a>
-                <a
-                    href="https://pakeplus.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <img
-                        src="https://hk.gh-proxy.org/https://github.com/Sjj1024/PakePlus/blob/main/app-icon.png"
-                        class="logo vanilla"
-                        alt="JavaScript logo"
-                    />
-                </a>
-            </div>
-            <p>Click to get data</p>
-            <form class="row" id="greet-form">
-                <input id="greet-input" placeholder="Enter a name..." />
-                <button type="submit" id="getdata">GET DATA</button>
-            </form>
-            <div class="functions">
-                <a href="./book.html" target="_self">跳转到book.html</a>
-                <a
-                    href="https://www.baidu.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >跳到百度blank
-                </a>
-                <a
-                    href="https://www.baidu.com"
-                    target="_self"
-                    rel="noopener noreferrer"
-                >
-                    跳到百度self
-                </a>
-                <button onclick="sayHello()">点击我</button>
-                <button onclick="sayHello()">下载文件</button>
-                <button onclick="sayHello()">上传文件</button>
-                <button onclick="sayHello()">访问相机</button>
-                <button onclick="sayHello()">访问麦克风</button>
-                <button onclick="sayHello()">访问相册</button>
-                <button class="btn" onclick="openWechat()">打开微信</button>
-                <button class="btn" onclick="openWechatScan()">
-                    打开扫一扫
-                </button>
-                <button class="btn" onclick="openZhihu()">打开知乎</button>
-                <button onclick="sayHello()">打开抖音</button>
-                <button onclick="sayHello()">用浏览器打开</button>
-                <button>打开知乎</button>
-            </div>
-            <p id="greet-msg"></p>
-            <img src="./static/image/cursor.jpeg" alt="logo" />
-            <video
-                src="https://hk.gh-proxy.org/https://github.com/Sjj1024/PakePlus/blob/main/docs/static/videos/pakeplus.mp4"
-                autoplay
-                controls
-                style="width: 100%; height: 100%"
-            ></video>
-            <audio src="./static/music/yin.mp3" controls></audio>
-        </main>
-    </body>
+<body>
+
+<div class="card-top">
+  <div class="title">自动实时记账</div>
+  <div class="label">当前余额</div>
+  <div class="balance" id="balance">0.00</div>
+  <div class="auto-status">✅ 通知+剪贴板双监控已启动</div>
+</div>
+
+<div class="card-input">
+  <input type="number" id="amount" placeholder="金额" step="0.01">
+  <input type="text" id="remark" placeholder="备注">
+  <div class="btn-group">
+    <button class="btn btn-income" onclick="addIncome()">+ 收入</button>
+    <button class="btn btn-expense" onclick="addExpense()">− 支出</button>
+  </div>
+</div>
+
+<div class="list" id="recordList"></div>
+
+<script>
+let records = JSON.parse(localStorage.getItem('records')) || [];
+
+render();
+startMonitor();
+
+// 双监控
+function startMonitor() {
+  if (window.plus) {
+    plus.android.requestNotificationPermission();
+    setInterval(() => {
+      plus.android.getLastNotification((msg) => {
+        if (msg) {
+          detectPayment(msg, "notice");
+        }
+      });
+    }, 1000);
+  }
+
+  setInterval(async () => {
+    try {
+      let text = await navigator.clipboard.readText();
+      detectPayment(text, "clip");
+    } catch (e) {}
+  }, 1000);
+}
+
+// 识别支付
+function detectPayment(text, sourceType) {
+  let match = text.match(/(\d+\.\d{2})/);
+  if (!match) return;
+  let money = parseFloat(match[1]);
+  if (money <= 0) return;
+
+  let note = "自动记账";
+  let payType = "";
+
+  if (/微信/.test(text)) {
+    note = "微信支付";
+    payType = "wx";
+  }
+  if (/支付宝/.test(text)) {
+    note = "支付宝支付";
+    payType = "ali";
+  }
+
+  saveRecord(-money, note, sourceType, payType);
+}
+
+// 保存
+function saveRecord(money, note, source, payType = "") {
+  records.unshift({
+    id: Date.now(),
+    money,
+    note,
+    source,
+    payType,
+    time: new Date().toLocaleString()
+  });
+  localStorage.setItem("records", JSON.stringify(records));
+  document.getElementById("amount").value = "";
+  document.getElementById("remark").value = "";
+  render();
+}
+
+// 手动收入
+function addIncome() {
+  let m = parseFloat(document.getElementById("amount").value);
+  let remarkText = document.getElementById("remark").value.trim();
+  if (!m || m <= 0) return alert("请输入有效金额");
+  
+  let note = remarkText || "收入";
+  saveRecord(m, note, "manual");
+}
+
+// 手动支出
+function addExpense() {
+  let m = parseFloat(document.getElementById("amount").value);
+  let remarkText = document.getElementById("remark").value.trim();
+  if (!m || m <= 0) return alert("请输入有效金额");
+  
+  let note = remarkText || "支出";
+  saveRecord(-m, note, "manual");
+}
+
+// 删除单条
+function deleteItem(id) {
+  records = records.filter(item => item.id !== id);
+  localStorage.setItem("records", JSON.stringify(records));
+  render();
+}
+
+// 渲染列表（带滑动删除）
+function render() {
+  let total = records.reduce((a, b) => a + b.money, 0);
+  document.getElementById("balance").innerText = total.toFixed(2);
+
+  document.getElementById("recordList").innerHTML = records.map(item => {
+    let tag1 = "";
+    if (item.source === "manual") {
+      tag1 = '<span class="tag tag-manual">手动记账</span>';
+    } else if (item.source === "notice") {
+      tag1 = '<span class="tag tag-notice">通知栏记账</span>';
+    } else if (item.source === "clip") {
+      tag1 = '<span class="tag tag-clip">剪贴板记账</span>';
+    }
+
+    let tag2 = "";
+    if (item.payType === "wx") {
+      tag2 = '<span class="tag tag-wx">微信支付</span>';
+    } else if (item.payType === "ali") {
+      tag2 = '<span class="tag tag-ali">支付宝支付</span>';
+    }
+
+    return `
+    <div class="swipe-item">
+      <div class="swipe-content" ontouchstart="startSwipe(this,${item.id})" ontouchend="endSwipe(this)">
+        <div>
+          <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+            ${item.note} ${tag1} ${tag2}
+          </div>
+          <div style="font-size:12px;color:#999;margin-top:4px">${item.time}</div>
+        </div>
+        <div style="font-weight:500;color:${item.money>0?'#007AFF':'#FF3B30'}">
+          ${item.money > 0 ? "+" : ""}${item.money.toFixed(2)}
+        </div>
+      </div>
+      <div class="swipe-delete" onclick="deleteItem(${item.id})">删除</div>
+    </div>
+    `;
+  }).join("");
+}
+
+// 滑动控制
+let startX = 0;
+function startSwipe(el, id) {
+  startX = event.touches[0].clientX;
+}
+function endSwipe(el) {
+  let diff = startX - event.changedTouches[0].clientX;
+  if (diff > 50) {
+    el.style.transform = "translateX(-80px)";
+  } else {
+    el.style.transform = "translateX(0)";
+  }
+}
+</script>
+</body>
 </html>
