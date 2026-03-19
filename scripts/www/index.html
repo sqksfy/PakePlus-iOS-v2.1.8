@@ -16,6 +16,7 @@ body {
   padding: 20px;
   max-width: 420px;
   margin: 0 auto;
+  padding-bottom: 60px;
 }
 .card-top {
   background: #ffffff;
@@ -43,6 +44,59 @@ body {
   font-size: 13px;
   color: #34C759;
 }
+
+.stats-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 12px;
+}
+.stats-item {
+  flex: 1;
+  text-align: center;
+}
+.stats-label {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 4px;
+}
+.stats-value {
+  font-size: 16px;
+  font-weight: 500;
+}
+.stats-income { color: #007AFF; }
+.stats-expense { color: #FF3B30; }
+
+.date-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+}
+.date-btn {
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: #007AFF;
+}
+#dateText {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+#datePick {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .card-input {
   background: #ffffff;
   border-radius: 16px;
@@ -60,6 +114,7 @@ body {
 .btn-group {
   display: flex;
   gap: 10px;
+  margin-bottom: 10px;
 }
 .btn {
   flex: 1;
@@ -69,14 +124,19 @@ body {
   color: white;
   font-size: 14px;
 }
-.btn-income {
-  background: #007AFF;
+.btn-income { background: #007AFF; }
+.btn-expense { background: #FF3B30; }
+.btn-export {
+  width: 100%;
+  background: #34C759;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
 }
-.btn-expense {
-  background: #FF3B30;
-}
+
 .list {
-  margin-top: 20px;
   background: #fff;
   border-radius: 16px;
   padding: 16px;
@@ -84,17 +144,18 @@ body {
 .swipe-item {
   position: relative;
   overflow: hidden;
+  margin-bottom: 8px;
 }
 .swipe-content {
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 14px 10px;
   background: #fff;
   position: relative;
   z-index: 1;
-  transition: transform 0.3s;
+  transition: transform 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
 }
 .swipe-delete {
   position: absolute;
@@ -108,7 +169,9 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 14px;
+  cursor: pointer;
 }
+
 .tag {
   font-size: 11px;
   padding: 2px 6px;
@@ -118,19 +181,63 @@ body {
 }
 .tag-manual { background: #007AFF; }
 .tag-notice { background: #FF3B30; }
-.tag-clip { background: #FF9500; }
+.tag-screen { background: #9C27B0; }
 .tag-wx { background: #07C160; }
 .tag-ali { background: #1677FF; }
+
+.record-left { flex: 1; }
+.record-money {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.record-note {
+  font-size: 12px;
+  color: #999;
+}
+.record-time {
+  font-size: 11px;
+  color: #ccc;
+  margin-top: 4px;
+}
 </style>
 </head>
-
 <body>
 
 <div class="card-top">
   <div class="title">自动实时记账</div>
   <div class="label">当前余额</div>
   <div class="balance" id="balance">0.00</div>
-  <div class="auto-status">✅ 通知+剪贴板双监控已启动</div>
+  <div class="auto-status">✅ 无障碍屏幕识别已启动</div>
+</div>
+
+<div class="stats-card">
+  <div class="stats-item">
+    <div class="stats-label">今日收入</div>
+    <div class="stats-value stats-income" id="todayIncome">0.00</div>
+  </div>
+  <div class="stats-item">
+    <div class="stats-label">今日支出</div>
+    <div class="stats-value stats-expense" id="todayExpense">0.00</div>
+  </div>
+</div>
+
+<div class="date-bar">
+  <button class="date-btn" onclick="prevDay()">← 昨日</button>
+  <span id="dateText" onclick="openDatePicker()">2025-01-01</span>
+  <button class="date-btn" onclick="nextDay()">明日 →</button>
+</div>
+<input type="date" id="datePick">
+
+<div class="stats-card">
+  <div class="stats-item">
+    <div class="stats-label">当日收入</div>
+    <div class="stats-value stats-income" id="dayIncome">0.00</div>
+  </div>
+  <div class="stats-item">
+    <div class="stats-label">当日支出</div>
+    <div class="stats-value stats-expense" id="dayExpense">0.00</div>
+  </div>
 </div>
 
 <div class="card-input">
@@ -140,155 +247,183 @@ body {
     <button class="btn btn-income" onclick="addIncome()">+ 收入</button>
     <button class="btn btn-expense" onclick="addExpense()">− 支出</button>
   </div>
+  <button class="btn-export" onclick="exportExcel()">📄 导出 Excel/CSV</button>
 </div>
 
 <div class="list" id="recordList"></div>
 
 <script>
 let records = JSON.parse(localStorage.getItem('records')) || [];
+let currentDate = new Date();
+let datePick = document.getElementById('datePick');
+let dateText = document.getElementById('dateText');
 
-render();
-startMonitor();
+renderAll();
 
-// 双监控
-function startMonitor() {
-  if (window.plus) {
-    plus.android.requestNotificationPermission();
-    setInterval(() => {
-      plus.android.getLastNotification((msg) => {
-        if (msg) {
-          detectPayment(msg, "notice");
-        }
-      });
-    }, 1000);
-  }
-
-  setInterval(async () => {
-    try {
-      let text = await navigator.clipboard.readText();
-      detectPayment(text, "clip");
-    } catch (e) {}
-  }, 1000);
+function openDatePicker() {
+  datePick.valueAsDate = currentDate;
+  datePick.click();
 }
 
-// 识别支付
-function detectPayment(text, sourceType) {
-  let match = text.match(/(\d+\.\d{2})/);
-  if (!match) return;
-  let money = parseFloat(match[1]);
-  if (money <= 0) return;
-
-  let note = "自动记账";
-  let payType = "";
-
-  if (/微信/.test(text)) {
-    note = "微信支付";
-    payType = "wx";
+datePick.onchange = function () {
+  if (this.value) {
+    currentDate = new Date(this.value);
+    renderAll();
   }
-  if (/支付宝/.test(text)) {
-    note = "支付宝支付";
-    payType = "ali";
-  }
+};
 
-  saveRecord(-money, note, sourceType, payType);
+function prevDay() {
+  currentDate.setDate(currentDate.getDate() - 1);
+  renderAll();
+}
+function nextDay() {
+  currentDate.setDate(currentDate.getDate() + 1);
+  renderAll();
 }
 
-// 保存
-function saveRecord(money, note, source, payType = "") {
-  records.unshift({
-    id: Date.now(),
-    money,
-    note,
-    source,
-    payType,
-    time: new Date().toLocaleString()
+function fmtDate(d) {
+  let y = d.getFullYear();
+  let m = String(d.getMonth() + 1).padStart(2, '0');
+  let day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function calcDayStats() {
+  const target = fmtDate(currentDate);
+  let inc = 0, exp = 0;
+  records.forEach(item => {
+    if (fmtDate(new Date(item.timestamp)) === target) {
+      item.money > 0 ? inc += item.money : exp += Math.abs(item.money);
+    }
   });
-  localStorage.setItem("records", JSON.stringify(records));
-  document.getElementById("amount").value = "";
-  document.getElementById("remark").value = "";
-  render();
+  document.getElementById('dayIncome').innerText = inc.toFixed(2);
+  document.getElementById('dayExpense').innerText = exp.toFixed(2);
+  dateText.innerText = target;
 }
 
-// 手动收入
-function addIncome() {
-  let m = parseFloat(document.getElementById("amount").value);
-  let remarkText = document.getElementById("remark").value.trim();
-  if (!m || m <= 0) return alert("请输入有效金额");
-  
-  let note = remarkText || "收入";
-  saveRecord(m, note, "manual");
-}
+function renderListByDay() {
+  const listEl = document.getElementById('recordList');
+  listEl.innerHTML = '';
+  const target = fmtDate(currentDate);
 
-// 手动支出
-function addExpense() {
-  let m = parseFloat(document.getElementById("amount").value);
-  let remarkText = document.getElementById("remark").value.trim();
-  if (!m || m <= 0) return alert("请输入有效金额");
-  
-  let note = remarkText || "支出";
-  saveRecord(-m, note, "manual");
-}
+  const filtered = records.filter(item => 
+    fmtDate(new Date(item.timestamp)) === target
+  );
 
-// 删除单条
-function deleteItem(id) {
-  records = records.filter(item => item.id !== id);
-  localStorage.setItem("records", JSON.stringify(records));
-  render();
-}
+  filtered.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'swipe-item';
+    
+    let isIncome = item.money >= 0;
+    let moneyText = isIncome ? `+${item.money.toFixed(2)}` : `${item.money.toFixed(2)}`;
+    let color = isIncome ? '#007AFF' : '#FF3B30';
 
-// 渲染列表（带滑动删除）
-function render() {
-  let total = records.reduce((a, b) => a + b.money, 0);
-  document.getElementById("balance").innerText = total.toFixed(2);
+    let tagClass = '', tagText = '';
+    if (item.source === 'manual') { tagClass = 'tag-manual'; tagText = '手动'; }
+    else if (item.source === 'notice') { tagClass = 'tag-notice'; tagText = '通知'; }
+    else if (item.source === 'screen') { tagClass = 'tag-screen'; tagText = '屏幕'; }
 
-  document.getElementById("recordList").innerHTML = records.map(item => {
-    let tag1 = "";
-    if (item.source === "manual") {
-      tag1 = '<span class="tag tag-manual">手动记账</span>';
-    } else if (item.source === "notice") {
-      tag1 = '<span class="tag tag-notice">通知栏记账</span>';
-    } else if (item.source === "clip") {
-      tag1 = '<span class="tag tag-clip">剪贴板记账</span>';
-    }
+    let payTag = '';
+    if (item.payType === 'wx') payTag = `<span class="tag tag-wx">微信</span>`;
+    if (item.payType === 'ali') payTag = `<span class="tag tag-ali">支付宝</span>`;
 
-    let tag2 = "";
-    if (item.payType === "wx") {
-      tag2 = '<span class="tag tag-wx">微信支付</span>';
-    } else if (item.payType === "ali") {
-      tag2 = '<span class="tag tag-ali">支付宝支付</span>';
-    }
-
-    return `
-    <div class="swipe-item">
-      <div class="swipe-content" ontouchstart="startSwipe(this,${item.id})" ontouchend="endSwipe(this)">
-        <div>
-          <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-            ${item.note} ${tag1} ${tag2}
+    div.innerHTML = `
+      <div class="swipe-content">
+        <div class="record-left">
+          <div class="record-money" style="color:${color}">
+            ${moneyText} <span class="tag ${tagClass}">${tagText}</span> ${payTag}
           </div>
-          <div style="font-size:12px;color:#999;margin-top:4px">${item.time}</div>
-        </div>
-        <div style="font-weight:500;color:${item.money>0?'#007AFF':'#FF3B30'}">
-          ${item.money > 0 ? "+" : ""}${item.money.toFixed(2)}
+          <div class="record-note">${item.note}</div>
+          <div class="record-time">${item.time}</div>
         </div>
       </div>
-      <div class="swipe-delete" onclick="deleteItem(${item.id})">删除</div>
-    </div>
+      <div class="swipe-delete" onclick="deleteItem('${item.id}')">删除</div>
     `;
-  }).join("");
+
+    // ========== 这里是修复的滑动删除逻辑 ==========
+    let startX = 0;
+    let content = div.querySelector('.swipe-content');
+    
+    div.addEventListener('touchstart', function(e) {
+      startX = e.touches[0].clientX;
+    });
+
+    div.addEventListener('touchmove', function(e) {
+      let moveX = e.touches[0].clientX - startX;
+      if (moveX < -40) {
+        content.style.transform = 'translateX(-80px)';
+      } else {
+        content.style.transform = 'translateX(0)';
+      }
+    });
+
+    div.addEventListener('touchend', function() {
+      setTimeout(() => {
+        content.style.transform = 'translateX(0)';
+      }, 1500);
+    });
+
+    listEl.appendChild(div);
+  });
 }
 
-// 滑动控制
-let startX = 0;
-function startSwipe(el, id) {
-  startX = event.touches[0].clientX;
+function saveRecord(money, note, source, payType = '') {
+  records.unshift({
+    id: Date.now() + Math.random(),
+    money: money,
+    note: note,
+    source: source,
+    payType: payType,
+    time: new Date().toLocaleString(),
+    timestamp: Date.now()
+  });
+  localStorage.setItem('records', JSON.stringify(records));
+  document.getElementById('amount').value = '';
+  document.getElementById('remark').value = '';
+  renderAll();
 }
-function endSwipe(el) {
-  let diff = startX - event.changedTouches[0].clientX;
-  if (diff > 50) {
-    el.style.transform = "translateX(-80px)";
-  } else {
-    el.style.transform = "translateX(0)";
-  }
+
+function addIncome() {
+  let m = parseFloat(document.getElementById('amount').value);
+  let r = document.getElementById('remark').value.trim() || '收入';
+  if (!m || m <= 0) return alert('请输入有效金额');
+  saveRecord(m, r, 'manual');
+}
+function addExpense() {
+  let m = parseFloat(document.getElementById('amount').value);
+  let r = document.getElementById('remark').value.trim() || '支出';
+  if (!m || m <= 0) return alert('请输入有效金额');
+  saveRecord(-m, r, 'manual');
+}
+
+function deleteItem(id) {
+  records = records.filter(item => item.id != id);
+  localStorage.setItem('records', JSON.stringify(records));
+  renderAll();
+}
+
+function exportExcel() {
+  let csv = "时间,类型,金额,备注,来源,渠道\n";
+  records.forEach(item => {
+    let type = item.money > 0 ? "收入" : "支出";
+    let money = Math.abs(item.money).toFixed(2);
+    let source = {manual:"手动",notice:"通知",screen:"屏幕识别"}[item.source] || item.source;
+    let channel = {wx:"微信",ali:"支付宝"}[item.payType] || "";
+    csv += `${item.time},${type},${money},"${item.note}",${source},${channel}\n`;
+  });
+  let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  let url = URL.createObjectURL(blob);
+  let a = document.createElement("a");
+  a.href = url;
+  a.download = "记账记录.csv";
+  a.click();
+}
+
+function renderAll() {
+  calcDayStats();
+  renderListByDay();
+  let total = records.reduce((s,i)=>s+i.money,0);
+  document.getElementById('balance').innerText = total.toFixed(2);
 }
 </script>
 </body>
